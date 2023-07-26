@@ -1,5 +1,4 @@
 import { createContext, useState, useEffect, useContext } from 'react';
-import { useCertificationGetDiplomaData, useCertificationTokenUri, useCertificationBalanceOf, useCertificationTokenOfOwnerByIndex } from '@/context/contract/API';
 import { useAccount } from 'wagmi';
 import { NFT } from '@/type/nft.type';
 import { useGamerContext } from './gamer';
@@ -26,27 +25,27 @@ export const NFTProvider: React.FC<React.PropsWithChildren<any>> = ({ children }
     useEffect(() => {
     
         async function loadNFTs() {
-            const { data: balanceOfPlayer = 0 } = useCertificationBalanceOf({ args: [playerAddress] });
-            const loadedNfts = [];
+            const loadedNfts: NFT[] = [];
+            // const { data: balanceOfPlayer = 0 } = useCertificationBalanceOf({ args: [playerAddress] });
 
-            for (let i = 0; i < balanceOfPlayer; i++) {
-                const { data: tokenId } = useCertificationTokenOfOwnerByIndex({ args: [playerAddress, BigInt(i)] });
-                if (!tokenId) continue;
-                const { data: diplomaData } = useCertificationGetDiplomaData({ args: [tokenId] });
-                const { data: tokenUri } = useCertificationTokenUri({ args: [tokenId] });
+            // for (let i = 0; i < balanceOfPlayer; i++) {
+            //     const { data: tokenId } = useCertificationTokenOfOwnerByIndex({ args: [playerAddress, BigInt(i)] });
+            //     if (!tokenId) continue;
+            //     const { data: diplomaData } = useCertificationGetDiplomaData({ args: [tokenId] });
+            //     const { data: tokenUri } = useCertificationTokenUri({ args: [tokenId] });
 
-                if (diplomaData && tokenUri) {
-                    const { fullname, surname } = diplomaData;
+            //     if (diplomaData && tokenUri) {
+            //         const { fullname, surname } = diplomaData;
 
-                    const newNft: NFT = {
-                        name: fullname,
-                        description: surname,
-                        imageUri: tokenUri,
-                    };
+            //         const newNft: NFT = {
+            //             name: fullname,
+            //             description: surname,
+            //             imageUri: tokenUri,
+            //         };
 
-                    loadedNfts.push(newNft);
-                }
-            }
+            //         loadedNfts.push(newNft);
+            //     }
+            // }
 
             setNfts(loadedNfts);
             setLoading(false);

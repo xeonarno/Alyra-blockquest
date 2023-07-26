@@ -79,7 +79,7 @@ export default function Home() {
                   key={avatar.name}
                   name={avatar.name}
                   src={avatar.url}
-                  size={useBreakpointValue({ base: 'md', md: 'lg' })}
+                  size={{ base: 'md', md: 'lg' }}
                   position={'relative'}
                   zIndex={2}
                   _before={{

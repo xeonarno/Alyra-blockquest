@@ -82,7 +82,7 @@ const Inscription = () => {
                         {errors.role && <span>{errors.role.message as any}</span>}
                     </FormControl>
                     <Button colorScheme="blue" type="submit">
-                        S'inscrire
+                        s&rsquo;inscrire
                     </Button>
                 </form>
             </Box>
