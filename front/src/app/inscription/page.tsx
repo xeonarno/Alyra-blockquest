@@ -6,6 +6,8 @@ import { useRouter } from 'next/navigation';
 import { UserData } from "@/type/user-data.type";
 import { useGamerContext } from "@/context/gamer";
 import Layout from "@/layout/Layout";
+import { useGameMasterCreateGm, usePlayerRegisterPlayer } from "@/context/contract/API";
+import { use, useEffect } from "react";
 
 type FormData = {
     firstName: string;
@@ -16,22 +18,41 @@ type FormData = {
 };
 
 const Inscription = () => {
+
+    const {data, write, isSuccess, isError } = useGameMasterCreateGm();
+    const {dataPL, writePL, isSuccessPL, isErrorPL } = usePlayerRegisterPlayer();
+
     const { register, handleSubmit, formState: { errors }, control } = useForm<FormData>();
     const router = useRouter();
     const { updateUser, currentUser } = useGamerContext();
 
+    useEffect(() => {
+        if(isSuccess) {
+            router.push("/master");
+        }
+        if(isSuccessPL) {
+            router.push("/player");
+        }
+    }, [isSuccess,isSuccessPL]);
+
     const onSubmit: SubmitHandler<FormData> = (data) => {
-        console.log(data);
+
+       async function register (){
         if (currentUser) {
             const updatedUser: UserData = { ...currentUser, ...data };
             updateUser(updatedUser);
         }
 
         if (data.role === "master") {
-            router.push("/master");
+            await write({ args: [data.firstName, data.lastName, data.imageUrl, data.description] })
+            
         } else if (data.role === "player") {
-            router.push("/player");
+            writePL({ args: [data.firstName, data.lastName, data.imageUrl, data.description] })
         }
+        }
+        console.log(data);
+       
+        register();
     };
 
     return (
@@ -52,7 +73,7 @@ const Inscription = () => {
                     </FormControl>
 
                     <FormControl id="imageUrl" isRequired mb={4}>
-                        <FormLabel>URL de l'image</FormLabel>
+                        <FormLabel>URL de l&rsquo;image</FormLabel>
                         <Input type="text" value='https://media.discordapp.net/attachments/1063223734976139294/1132962977553842267/xeonarno_minimal_line_logo_for_the_expression_BlockQuest_in_a_c_f325e07d-39e7-4141-b5b2-7419414b9a9b.png?width=1086&height=1086' {...register("imageUrl", { required: "Ce champ est requis" })} />
                         {errors.imageUrl && <span>{errors.imageUrl.message as any}</span>}
                     </FormControl>

@@ -16,19 +16,15 @@ interface NavItem {
 
 const NAV_ITEMS: Array<NavItem> = [
     {
-        label: 'Inspiration',
+        label: 'Teams',
         href: '#',
     },
     {
-        label: 'Find Work',
+        label: 'Game',
         href: '#',
     },
     {
-        label: 'Learn Design',
-        href: '#',
-    },
-    {
-        label: 'Hire Designers',
+        label: 'Certification',
         href: '#',
     },
 ];

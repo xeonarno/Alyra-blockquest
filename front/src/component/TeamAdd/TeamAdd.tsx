@@ -2,8 +2,19 @@
 
 import { AddIcon } from "@chakra-ui/icons";
 import { Button, Modal, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Input, FormControl, FormLabel, useDisclosure, Textarea } from "@chakra-ui/react";
-import { useForm } from "react-hook-form";
+import { SubmitHandler, useForm } from "react-hook-form";
 import { useAccount } from "wagmi";
+
+
+import { useGameMasterCreateTeam } from "@/context/contract/API";
+import { useEffect } from "react";
+
+type FormData = {
+    teamName: string;
+    gameMasterAddress: string;
+    imageURL: string;
+    description: string;
+};
 
 type AdminValidation = { question: string, onNext: Function };
 
@@ -12,10 +23,18 @@ export default function TeamAdd({ question, onNext }: AdminValidation) {
     const { register, handleSubmit, formState: { errors } } = useForm();
     const { isConnected, address } = useAccount();  // Assuming useAccount hook is accessible
 
-    const handleConfirm = (data: any) => {
-        console.log(data); // Log the form data, replace this with your own logic
+    const { data , write, isSuccess, isError } = useGameMasterCreateTeam();
+
+    useEffect(() => {
         onNext();
         onClose();
+    }, [isSuccess]);
+
+    const handleConfirm : SubmitHandler<any> = async (data: any) => {
+        console.log(data); // Log the form data, replace this with your own logic
+
+        await write({ args: [data.teamName, data.imageURL, data.description] })
+    
     }
 
     return (
