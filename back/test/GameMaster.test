@@ -1,0 +1,62 @@
+// fichier de test: test/GameMaster.test.ts
+
+import { ethers } from "hardhat";
+import chai from "chai";
+import { solidity } from "ethereum-waffle";
+import { GameMaster } from "../typechain/GameMaster";
+import { Team } from "../typechain/Team";
+import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
+
+chai.use(solidity);
+const { expect } = chai;
+
+describe("GameMaster", function () {
+  let gmContract: GameMaster;
+  let teamContract: Team;
+  let owner: SignerWithAddress;
+  let addr1: SignerWithAddress;
+
+  beforeEach(async function () {
+    // Deploy Team contract
+    const TeamFactory = await ethers.getContractFactory("Team");
+    [owner, addr1] = await ethers.getSigners();
+    teamContract = (await TeamFactory.deploy()) as Team;
+    await teamContract.deployed();
+
+    // Deploy GameMaster contract
+    const GMFactory = await ethers.getContractFactory("GameMaster");
+    gmContract = (await GMFactory.deploy(teamContract.address)) as GameMaster;
+    await gmContract.deployed();
+  });
+
+  describe("Create GM", function () {
+    it("Should create new GM", async function () {
+      await gmContract.connect(owner).createGM("John", "Doe", "https://example.com/image.png", "Bio of John");
+      const ownerGM = await gmContract.gameMasters(owner.address);
+      expect(ownerGM.name).to.equal("John");
+      expect(ownerGM.surname).to.equal("Doe");
+      expect(ownerGM.imageUri).to.equal("https://example.com/image.png");
+      expect(ownerGM.biography).to.equal("Bio of John");
+    });
+  });
+
+  describe("Team Functions", function () {
+    beforeEach(async function () {
+      await gmContract.connect(owner).createGM("John", "Doe", "https://example.com/image.png", "Bio of John");
+    });
+
+    it("Should create a new team", async function () {
+      await gmContract.connect(owner).createTeam("Test Team", "https://example.com/team_image.png", "Test Team Description");
+      const teams = await teamContract.getTeamsOfGM(owner.address);
+      expect(teams.length).to.equal(1);
+    });
+
+    it("Should delete a team", async function () {
+      await gmContract.connect(owner).createTeam("Test Team", "https://example.com/team_image.png", "Test Team Description");
+      const teamsBefore = await teamContract.getTeamsOfGM(owner.address);
+      await gmContract.connect(owner).deleteTeam(teamsBefore[0]);
+      const teamsAfter = await teamContract.getTeamsOfGM(owner.address);
+      expect(teamsAfter.length).to.equal(0);
+    });
+  });
+});
